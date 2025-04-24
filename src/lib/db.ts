@@ -1,4 +1,3 @@
-
 // Types for our database entities
 export interface User {
   id: number;
@@ -298,6 +297,41 @@ export const getUser = (id: number) => {
   return users.find(u => u.id === id);
 };
 
+export const createUser = (userData: Omit<User, 'id' | 'createdAt' | 'avatarUrl'>) => {
+  const newUser: User = {
+    ...userData,
+    id: users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1,
+    createdAt: new Date().toISOString(),
+    avatarUrl: `https://avatars.dicebear.com/api/avataaars/${userData.name.replace(' ', '')}.svg`,
+  };
+  
+  users.push(newUser);
+  return newUser;
+};
+
+export const updateUser = (id: number, updates: Partial<Omit<User, 'id' | 'createdAt' | 'role'>>) => {
+  const userIndex = users.findIndex(u => u.id === id);
+  
+  if (userIndex === -1) return null;
+  
+  users[userIndex] = {
+    ...users[userIndex],
+    ...updates,
+  };
+  
+  return users[userIndex];
+};
+
+export const deleteUser = (id: number) => {
+  const userIndex = users.findIndex(u => u.id === id);
+  
+  if (userIndex === -1) return false;
+  
+  users.splice(userIndex, 1);
+  return true;
+};
+
+// Ticket related functions
 export const getTickets = (filters: {
   userId?: number,
   assignedToId?: number,
@@ -377,6 +411,7 @@ export const createMessage = (messageData: Omit<Message, 'id' | 'createdAt'>) =>
   return newMessage;
 };
 
+// Knowledge Base related functions
 export const getKbArticles = (isAgentOnly: boolean = false) => {
   return kbArticles.filter(article => isAgentOnly || !article.isAgentOnly);
 };

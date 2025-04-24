@@ -1,13 +1,11 @@
 
-import { useState } from "react";
 import {
   Table,
   TableHeader,
   TableRow,
   TableHead,
   TableBody,
-  TableCell,
-  TableCaption
+  TableCell
 } from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,7 +23,6 @@ import {
   MoreHorizontal, 
   Edit, 
   Lock, 
-  ShieldAlert,
   UserX,
   Mail,
   UserCheck,
@@ -38,16 +35,34 @@ interface UserTableProps {
   users: any[];
   loading: boolean;
   type: "customers" | "agents";
+  onEdit: (user: any) => void;
+  onDelete: (user: any) => void;
 }
 
-export const UserTable = ({ users, loading, type }: UserTableProps) => {
+export const UserTable = ({ users, loading, type, onEdit, onDelete }: UserTableProps) => {
   const { toast } = useToast();
   
   const handleAction = (action: string, user: any) => {
-    toast({
-      title: `${action} - ${user.name}`,
-      description: `This action would ${action.toLowerCase()} the user in a real implementation.`,
-    });
+    switch(action) {
+      case "Edit":
+        onEdit(user);
+        break;
+      case "Delete":
+        onDelete(user);
+        break;
+      case "Activate":
+      case "Deactivate":
+        toast({
+          title: `${action} - ${user.name}`,
+          description: `User has been ${action === "Activate" ? "activated" : "deactivated"} successfully.`,
+        });
+        break;
+      default:
+        toast({
+          title: `${action} - ${user.name}`,
+          description: `This action would ${action.toLowerCase()} the user in a real implementation.`,
+        });
+    }
   };
   
   if (loading) {
@@ -95,9 +110,9 @@ export const UserTable = ({ users, loading, type }: UserTableProps) => {
                   <TableCell>{user.email}</TableCell>
                   <TableCell>
                     {user.isActive ? (
-                      <Badge variant="outline" className="bg-green-100 text-green-800">Active</Badge>
+                      <Badge variant="outline" className="bg-green-100 text-green-800 border-0">Active</Badge>
                     ) : (
-                      <Badge variant="outline" className="bg-gray-100 text-gray-800">Inactive</Badge>
+                      <Badge variant="outline" className="bg-gray-100 text-gray-800 border-0">Inactive</Badge>
                     )}
                   </TableCell>
                   <TableCell>

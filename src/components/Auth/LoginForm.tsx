@@ -6,10 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/components/ui/use-toast";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const { login, error, isLoading } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -17,13 +19,7 @@ const LoginForm = () => {
     
     try {
       await login(email, password);
-      if (error) {
-        toast({
-          title: "Login failed",
-          description: error,
-          variant: "destructive",
-        });
-      }
+      // Only show error toast if login fails (the error will be set in the auth context)
     } catch (error) {
       toast({
         title: "Login failed",
@@ -77,7 +73,11 @@ const LoginForm = () => {
           )}
           
           <div className="flex items-center space-x-2">
-            <Input type="checkbox" id="remember" className="w-4 h-4" />
+            <Checkbox 
+              id="remember" 
+              checked={rememberMe}
+              onCheckedChange={(checked) => setRememberMe(checked === true)} 
+            />
             <Label htmlFor="remember" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
               Remember me
             </Label>
