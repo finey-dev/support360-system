@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
@@ -103,7 +102,11 @@ export const TicketTable = ({ limit }: TicketTableProps) => {
           <tbody className="divide-y divide-border">
             {tickets.length > 0 ? (
               tickets.map((ticket) => (
-                <tr key={ticket.id} className="hover:bg-muted/50">
+                <tr 
+                  key={ticket.id} 
+                  className="hover:bg-muted/50 cursor-pointer"
+                  onClick={() => navigate(`/dashboard/tickets/${ticket.id}`)}
+                >
                   <td className="px-6 py-4 text-sm">#{ticket.id.toString().padStart(4, '0')}</td>
                   <td className="px-6 py-4">
                     <Link

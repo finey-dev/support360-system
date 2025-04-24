@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { useNavigate, useLocation, Routes, Route } from "react-router-dom";
 import { DashboardLayout } from "@/components/Layout/DashboardLayout";
@@ -18,6 +17,8 @@ import { SystemSettings } from "@/components/Settings/SystemSettings";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "react-router-dom";
+import { ArticleDetail } from "@/components/KnowledgeBase/ArticleDetail";
+import { NewTicket } from "@/components/Tickets/NewTicket";
 
 const DashboardHome = () => {
   const { user } = useAuth();
@@ -100,14 +101,12 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Redirect to proper dashboard path if just /dashboard is accessed
   useEffect(() => {
     if (location.pathname === "/dashboard") {
       navigate("/dashboard/home");
     }
   }, [location.pathname, navigate]);
   
-  // Role-based route guard
   const guardedRoute = (Component: React.ComponentType, allowedRoles: string[]) => {
     if (!user || !allowedRoles.includes(user.role)) {
       return <div>Access denied. You do not have permission to view this page.</div>;
@@ -121,9 +120,11 @@ const Dashboard = () => {
         <Route path="home" element={<DashboardHome />} />
         <Route path="chat" element={<ChatInterface />} />
         <Route path="tickets" element={<DashboardTickets />} />
+        <Route path="tickets/new" element={<NewTicket />} />
         <Route path="tickets/:ticketId" element={<DashboardTicketDetail />} />
         <Route path="analytics" element={<DashboardAnalytics />} />
         <Route path="knowledge-base" element={<DashboardKnowledgeBase />} />
+        <Route path="knowledge-base/:articleId" element={<ArticleDetail />} />
         <Route path="customers" element={guardedRoute(DashboardManageCustomers, ["admin"])} />
         <Route path="agents" element={guardedRoute(DashboardManageAgents, ["admin"])} />
         <Route path="settings" element={guardedRoute(DashboardSettings, ["admin"])} />

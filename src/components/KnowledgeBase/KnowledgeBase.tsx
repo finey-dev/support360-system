@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -29,17 +28,14 @@ export const KnowledgeBase = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   
   useEffect(() => {
-    // Fetch articles based on user role
     const isAgent = user?.role === 'agent' || user?.role === 'admin';
     const fetchedArticles = getKbArticles(isAgent);
     setArticles(fetchedArticles);
     setLoading(false);
   }, [user]);
   
-  // Compute categories from articles
   const categories = Array.from(new Set(articles.map(article => article.category)));
   
-  // Filter articles based on search and category
   const filteredArticles = articles.filter(article => {
     const matchesSearch = 
       searchTerm === "" || 
@@ -51,12 +47,10 @@ export const KnowledgeBase = () => {
     return matchesSearch && matchesCategory;
   });
   
-  // Get popular articles (by view count)
   const popularArticles = [...articles]
     .sort((a, b) => b.viewCount - a.viewCount)
     .slice(0, 5);
   
-  // Get recent articles
   const recentArticles = [...articles]
     .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
     .slice(0, 5);
@@ -72,7 +66,6 @@ export const KnowledgeBase = () => {
   
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Knowledge Base</h2>
@@ -81,7 +74,6 @@ export const KnowledgeBase = () => {
           </p>
         </div>
         
-        {/* Search */}
         <div className="relative w-full max-w-sm">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
@@ -94,7 +86,6 @@ export const KnowledgeBase = () => {
         </div>
       </div>
       
-      {/* Category filters */}
       <div className="flex flex-wrap gap-2">
         <Button
           variant={selectedCategory === null ? "default" : "outline"}
@@ -116,7 +107,6 @@ export const KnowledgeBase = () => {
         ))}
       </div>
       
-      {/* Content */}
       <Tabs defaultValue="all">
         <TabsList>
           <TabsTrigger value="all">All Articles</TabsTrigger>
@@ -132,7 +122,11 @@ export const KnowledgeBase = () => {
             </div>
           ) : (
             filteredArticles.map(article => (
-              <ArticleCard key={article.id} article={article} />
+              <ArticleCard 
+                key={article.id} 
+                article={article}
+                onClick={() => navigate(`/dashboard/knowledge-base/${article.id}`)}
+              />
             ))
           )}
         </TabsContent>
@@ -155,11 +149,12 @@ export const KnowledgeBase = () => {
 
 interface ArticleCardProps {
   article: KbArticle;
+  onClick: () => void;
 }
 
-const ArticleCard = ({ article }: ArticleCardProps) => {
+const ArticleCard = ({ article, onClick }: ArticleCardProps) => {
   return (
-    <Card>
+    <Card className="hover:bg-muted/50 cursor-pointer transition-colors" onClick={onClick}>
       <CardHeader className="pb-2">
         <div className="flex justify-between">
           <CardTitle className="text-lg font-medium">
