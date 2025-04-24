@@ -9,6 +9,15 @@ import { useAuth } from "@/components/Auth/AuthContext";
 import { ChatInterface } from "@/components/Chat/ChatInterface";
 import { TicketTable } from "@/components/Tickets/TicketTable";
 import { PageHeader } from "@/components/Layout/PageHeader";
+import { TicketDetail } from "@/components/Tickets/TicketDetail";
+import { KanbanBoard } from "@/components/Tickets/KanbanBoard";
+import { KnowledgeBase } from "@/components/KnowledgeBase/KnowledgeBase";
+import { AnalyticsDashboard } from "@/components/Analytics/AnalyticsDashboard";
+import { ManageUsers } from "@/components/Users/ManageUsers";
+import { SystemSettings } from "@/components/Settings/SystemSettings";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Link } from "react-router-dom";
 
 const DashboardHome = () => {
   const { user } = useAuth();
@@ -33,51 +42,58 @@ const DashboardTickets = () => {
       <PageHeader 
         title="Tickets" 
         description="View and manage all support tickets"
+        actions={
+          <Button asChild>
+            <Link to="/dashboard/tickets/new">New Ticket</Link>
+          </Button>
+        }
       />
-      <TicketTable />
+      
+      <Tabs defaultValue="table" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="table">Table View</TabsTrigger>
+          <TabsTrigger value="kanban">Kanban Board</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="table">
+          <TicketTable />
+        </TabsContent>
+        
+        <TabsContent value="kanban">
+          <KanbanBoard />
+        </TabsContent>
+      </Tabs>
     </div>
   );
+};
+
+const DashboardTicketDetail = () => {
+  return <TicketDetail />;
 };
 
 const DashboardChat = () => {
   return <ChatInterface />;
 };
 
-// Placeholder components for other routes
-const Analytics = () => (
-  <div className="space-y-6 animate-in">
-    <PageHeader title="Analytics" description="Support performance metrics and insights" />
-    <div className="bg-muted p-8 rounded-lg text-center">Analytics dashboard content placeholder</div>
-  </div>
-);
+const DashboardAnalytics = () => {
+  return <AnalyticsDashboard />;
+};
 
-const KnowledgeBase = () => (
-  <div className="space-y-6 animate-in">
-    <PageHeader title="Knowledge Base" description="Find answers to common questions" />
-    <div className="bg-muted p-8 rounded-lg text-center">Knowledge Base content placeholder</div>
-  </div>
-);
+const DashboardKnowledgeBase = () => {
+  return <KnowledgeBase />;
+};
 
-const ManageCustomers = () => (
-  <div className="space-y-6 animate-in">
-    <PageHeader title="Manage Customers" description="View and edit customer accounts" />
-    <div className="bg-muted p-8 rounded-lg text-center">Customer management interface placeholder</div>
-  </div>
-);
+const DashboardManageCustomers = () => {
+  return <ManageUsers type="customers" />;
+};
 
-const ManageAgents = () => (
-  <div className="space-y-6 animate-in">
-    <PageHeader title="Manage Agents" description="View and edit support agent accounts" />
-    <div className="bg-muted p-8 rounded-lg text-center">Agent management interface placeholder</div>
-  </div>
-);
+const DashboardManageAgents = () => {
+  return <ManageUsers type="agents" />;
+};
 
-const Settings = () => (
-  <div className="space-y-6 animate-in">
-    <PageHeader title="System Settings" description="Configure your support center" />
-    <div className="bg-muted p-8 rounded-lg text-center">Settings interface placeholder</div>
-  </div>
-);
+const DashboardSettings = () => {
+  return <SystemSettings />;
+};
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -105,11 +121,12 @@ const Dashboard = () => {
         <Route path="home" element={<DashboardHome />} />
         <Route path="chat" element={<ChatInterface />} />
         <Route path="tickets" element={<DashboardTickets />} />
-        <Route path="analytics" element={<Analytics />} />
-        <Route path="knowledge-base" element={<KnowledgeBase />} />
-        <Route path="customers" element={guardedRoute(ManageCustomers, ["admin"])} />
-        <Route path="agents" element={guardedRoute(ManageAgents, ["admin"])} />
-        <Route path="settings" element={guardedRoute(Settings, ["admin"])} />
+        <Route path="tickets/:ticketId" element={<DashboardTicketDetail />} />
+        <Route path="analytics" element={<DashboardAnalytics />} />
+        <Route path="knowledge-base" element={<DashboardKnowledgeBase />} />
+        <Route path="customers" element={guardedRoute(DashboardManageCustomers, ["admin"])} />
+        <Route path="agents" element={guardedRoute(DashboardManageAgents, ["admin"])} />
+        <Route path="settings" element={guardedRoute(DashboardSettings, ["admin"])} />
       </Routes>
     </DashboardLayout>
   );
