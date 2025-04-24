@@ -1,10 +1,9 @@
 
-import { useMemo } from "react";
-import { RadialBarChart, RadialBar, ResponsiveContainer, Legend } from "recharts";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
+import { 
+  ChartContainer, 
+  ChartTooltip, 
+  ChartTooltipContent 
 } from "@/components/ui/chart";
 
 interface CustomerSatisfactionChartProps {
@@ -12,112 +11,86 @@ interface CustomerSatisfactionChartProps {
 }
 
 export const CustomerSatisfactionChart = ({ tickets }: CustomerSatisfactionChartProps) => {
-  // In a real app, this would come from actual satisfaction surveys
-  // For the prototype, generate synthetic data based on resolution time
-  const getSatisfactionData = () => {
-    // Generate synthetic satisfaction distribution
-    // Higher satisfaction for quickly resolved tickets
-    const resolvedTickets = tickets.filter(t => t.status === 'resolved' || t.status === 'closed');
-    const totalResolved = resolvedTickets.length;
+  // Calculate satisfaction rates from ticket data
+  // For this prototype, we'll generate satisfaction data
+  const totalResolved = tickets.filter(t => t.status === 'resolved' || t.status === 'closed').length;
+  
+  // Calculate ratings distribution (mocked for prototype)
+  const data = [
+    { name: "Very Satisfied", value: Math.floor(totalResolved * 0.45), fill: "#10B981" },
+    { name: "Satisfied", value: Math.floor(totalResolved * 0.30), fill: "#3B82F6" },
+    { name: "Neutral", value: Math.floor(totalResolved * 0.15), fill: "#6B7280" },
+    { name: "Unsatisfied", value: Math.floor(totalResolved * 0.10), fill: "#F59E0B" }
+  ];
+  
+  // If no data, show placeholder
+  if (totalResolved === 0) {
+    return (
+      <div className="h-[250px] flex items-center justify-center border rounded-lg">
+        <p className="text-muted-foreground">No satisfaction data available</p>
+      </div>
+    );
+  }
+  
+  const renderCustomizedLabel = ({ 
+    cx, 
+    cy, 
+    midAngle, 
+    innerRadius, 
+    outerRadius, 
+    percent, 
+    index 
+  }: any) => {
+    const RADIAN = Math.PI / 180;
+    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
     
-    if (totalResolved === 0) {
-      return [
-        { name: 'Very Satisfied', value: 0 },
-        { name: 'Satisfied', value: 0 },
-        { name: 'Neutral', value: 0 },
-        { name: 'Unsatisfied', value: 0 },
-        { name: 'Very Unsatisfied', value: 0 }
-      ];
-    }
+    if (percent < 0.05) return null;
     
-    // Calculate the distribution based on synthetic satisfaction data
-    // This simulates a customer satisfaction survey
-    const veryUnsatisfied = Math.round(totalResolved * 0.05);
-    const unsatisfied = Math.round(totalResolved * 0.10);
-    const neutral = Math.round(totalResolved * 0.15);
-    const satisfied = Math.round(totalResolved * 0.40);
-    const verySatisfied = totalResolved - veryUnsatisfied - unsatisfied - neutral - satisfied;
-    
-    // Calculate percentages
-    const total = totalResolved;
-    const verySatisfiedPercent = ((verySatisfied / total) * 100).toFixed(1);
-    const satisfiedPercent = ((satisfied / total) * 100).toFixed(1);
-    const neutralPercent = ((neutral / total) * 100).toFixed(1);
-    const unsatisfiedPercent = ((unsatisfied / total) * 100).toFixed(1);
-    const veryUnsatisfiedPercent = ((veryUnsatisfied / total) * 100).toFixed(1);
-    
-    return [
-      { name: 'Very Satisfied', value: parseFloat(verySatisfiedPercent), fill: '#48BB78' },
-      { name: 'Satisfied', value: parseFloat(satisfiedPercent), fill: '#9AE6B4' },
-      { name: 'Neutral', value: parseFloat(neutralPercent), fill: '#ECC94B' },
-      { name: 'Unsatisfied', value: parseFloat(unsatisfiedPercent), fill: '#F6AD55' },
-      { name: 'Very Unsatisfied', value: parseFloat(veryUnsatisfiedPercent), fill: '#F56565' }
-    ];
+    return (
+      <text 
+        x={x} 
+        y={y} 
+        fill="white" 
+        textAnchor="middle" 
+        dominantBaseline="central"
+        className="text-xs font-medium"
+      >
+        {`${(percent * 100).toFixed(0)}%`}
+      </text>
+    );
   };
-  
-  const data = useMemo(() => getSatisfactionData(), [tickets]);
-  
-  // Calculate overall satisfaction score (weighted average)
-  const satisfactionScore = useMemo(() => {
-    const weights = {
-      'Very Satisfied': 5,
-      'Satisfied': 4,
-      'Neutral': 3,
-      'Unsatisfied': 2,
-      'Very Unsatisfied': 1
-    };
-    
-    const total = data.reduce((acc, item) => acc + item.value, 0);
-    if (total === 0) return 0;
-    
-    const weightedSum = data.reduce((acc, item) => {
-      return acc + (item.value * weights[item.name as keyof typeof weights]);
-    }, 0);
-    
-    return (weightedSum / total).toFixed(1);
-  }, [data]);
-  
+
   const config = {
-    'Very Satisfied': { color: '#48BB78' },
-    'Satisfied': { color: '#9AE6B4' },
-    'Neutral': { color: '#ECC94B' },
-    'Unsatisfied': { color: '#F6AD55' },
-    'Very Unsatisfied': { color: '#F56565' },
+    "Very Satisfied": { color: "#10B981" },
+    "Satisfied": { color: "#3B82F6" },
+    "Neutral": { color: "#6B7280" },
+    "Unsatisfied": { color: "#F59E0B" },
   };
 
   return (
-    <div className="space-y-4">
-      <div className="text-center">
-        <div className="text-3xl font-bold">{satisfactionScore}/5</div>
-        <div className="text-sm text-muted-foreground">Overall Satisfaction</div>
-      </div>
-      
-      <ChartContainer config={config} className="aspect-[4/3]">
-        <ResponsiveContainer width="100%" height="100%">
-          <RadialBarChart
+    <ChartContainer config={config} className="aspect-[4/3]">
+      <ResponsiveContainer width="100%" height={300}>
+        <PieChart>
+          <Pie
+            data={data}
             cx="50%"
             cy="50%"
-            innerRadius="20%"
-            outerRadius="90%"
-            barSize={15}
-            data={data}
+            labelLine={false}
+            label={renderCustomizedLabel}
+            outerRadius={100}
+            fill="#8884d8"
+            dataKey="value"
           >
-            <RadialBar
-              minAngle={15}
-              label={{ position: 'insideEnd', fill: '#fff', fontWeight: 600, fontSize: 12 }}
-              background
-              dataKey="value"
-            />
-            <Legend
-              iconSize={10}
-              layout="horizontal"
-              verticalAlign="bottom"
-              align="center"
-            />
-            <ChartTooltip content={<ChartTooltipContent />} />
-          </RadialBarChart>
-        </ResponsiveContainer>
-      </ChartContainer>
-    </div>
+            {data.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={entry.fill} />
+            ))}
+          </Pie>
+          <Tooltip content={<ChartTooltipContent />} />
+          <Legend />
+        </PieChart>
+      </ResponsiveContainer>
+    </ChartContainer>
   );
 };
