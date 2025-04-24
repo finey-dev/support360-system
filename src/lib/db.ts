@@ -1,6 +1,4 @@
 
-import jwt from 'jsonwebtoken';
-
 // Types for our database entities
 export interface User {
   id: number;
@@ -245,12 +243,13 @@ export const authenticateUser = (email: string, password: string) => {
   // For the prototype, we'll accept any password that matches "password"
   if (password !== "password") return null;
   
-  // Generate JWT token
-  const token = jwt.sign(
-    { id: user.id, email: user.email, role: user.role },
-    'support360-secret-key', // In production, use a proper secret from environment variables
-    { expiresIn: '24h' }
-  );
+  // Generate a simple token - browser compatible approach instead of JWT
+  const token = btoa(JSON.stringify({
+    id: user.id,
+    email: user.email,
+    role: user.role,
+    exp: Date.now() + 24 * 60 * 60 * 1000 // 24 hours from now
+  }));
   
   return {
     token,
@@ -266,7 +265,14 @@ export const authenticateUser = (email: string, password: string) => {
 
 export const verifyToken = (token: string) => {
   try {
-    const decoded = jwt.verify(token, 'support360-secret-key') as jwt.JwtPayload;
+    // Decode the base64 token
+    const decoded = JSON.parse(atob(token));
+    
+    // Check if token is expired
+    if (decoded.exp < Date.now()) {
+      return null;
+    }
+    
     const user = users.find(u => u.id === decoded.id && u.isActive);
     
     if (!user) return null;
