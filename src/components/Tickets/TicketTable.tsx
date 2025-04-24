@@ -1,5 +1,6 @@
+
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -12,6 +13,7 @@ interface TicketTableProps {
 }
 
 export const TicketTable = ({ limit }: TicketTableProps) => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [tickets, setTickets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -69,6 +71,10 @@ export const TicketTable = ({ limit }: TicketTableProps) => {
     urgent: "bg-red-50 text-red-600",
   };
 
+  const handleRowClick = (ticketId: number) => {
+    navigate(`/dashboard/tickets/${ticketId}`);
+  };
+
   if (loading) {
     return (
       <Card className="p-4">
@@ -105,7 +111,7 @@ export const TicketTable = ({ limit }: TicketTableProps) => {
                 <tr 
                   key={ticket.id} 
                   className="hover:bg-muted/50 cursor-pointer"
-                  onClick={() => navigate(`/dashboard/tickets/${ticket.id}`)}
+                  onClick={() => handleRowClick(ticket.id)}
                 >
                   <td className="px-6 py-4 text-sm">#{ticket.id.toString().padStart(4, '0')}</td>
                   <td className="px-6 py-4">

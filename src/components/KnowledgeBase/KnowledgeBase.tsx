@@ -1,4 +1,6 @@
+
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -22,6 +24,7 @@ interface KbArticle {
 
 export const KnowledgeBase = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [articles, setArticles] = useState<KbArticle[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
@@ -63,6 +66,10 @@ export const KnowledgeBase = () => {
       </div>
     );
   }
+  
+  const handleArticleClick = (articleId: number) => {
+    navigate(`/dashboard/knowledge-base/${articleId}`);
+  };
   
   return (
     <div className="space-y-6">
@@ -125,7 +132,7 @@ export const KnowledgeBase = () => {
               <ArticleCard 
                 key={article.id} 
                 article={article}
-                onClick={() => navigate(`/dashboard/knowledge-base/${article.id}`)}
+                onClick={() => handleArticleClick(article.id)}
               />
             ))
           )}
@@ -133,13 +140,21 @@ export const KnowledgeBase = () => {
         
         <TabsContent value="popular" className="space-y-4">
           {popularArticles.map(article => (
-            <ArticleCard key={article.id} article={article} />
+            <ArticleCard 
+              key={article.id} 
+              article={article}
+              onClick={() => handleArticleClick(article.id)}
+            />
           ))}
         </TabsContent>
         
         <TabsContent value="recent" className="space-y-4">
           {recentArticles.map(article => (
-            <ArticleCard key={article.id} article={article} />
+            <ArticleCard 
+              key={article.id} 
+              article={article}
+              onClick={() => handleArticleClick(article.id)}
+            />
           ))}
         </TabsContent>
       </Tabs>
