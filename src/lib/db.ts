@@ -1,3 +1,4 @@
+
 // Types for our database entities
 export interface User {
   id: number;
@@ -163,16 +164,59 @@ const generateMockKbArticles = (count: number): Partial<KbArticle>[] => {
 };
 
 // In a real app, we would connect to SQLite
-// For this prototype, we'll use in-memory storage
+// For this prototype, we'll use localStorage for persistence
 let users: User[] = [];
 let tickets: Ticket[] = [];
 let messages: Message[] = [];
 let kbArticles: KbArticle[] = [];
 let isDbInitialized = false;
 
+// Load data from localStorage
+const loadFromLocalStorage = () => {
+  try {
+    const storedUsers = localStorage.getItem('support360_users');
+    const storedTickets = localStorage.getItem('support360_tickets');
+    const storedMessages = localStorage.getItem('support360_messages');
+    const storedKbArticles = localStorage.getItem('support360_kbArticles');
+    
+    if (storedUsers) users = JSON.parse(storedUsers);
+    if (storedTickets) tickets = JSON.parse(storedTickets);
+    if (storedMessages) messages = JSON.parse(storedMessages);
+    if (storedKbArticles) kbArticles = JSON.parse(storedKbArticles);
+    
+    return storedUsers !== null; // Return true if data was loaded
+  } catch (error) {
+    console.error('Error loading data from localStorage:', error);
+    return false;
+  }
+}
+
+// Save data to localStorage
+const saveToLocalStorage = () => {
+  try {
+    localStorage.setItem('support360_users', JSON.stringify(users));
+    localStorage.setItem('support360_tickets', JSON.stringify(tickets));
+    localStorage.setItem('support360_messages', JSON.stringify(messages));
+    localStorage.setItem('support360_kbArticles', JSON.stringify(kbArticles));
+  } catch (error) {
+    console.error('Error saving data to localStorage:', error);
+  }
+}
+
 // Initialize our mock database
 export const initializeDb = () => {
   if (isDbInitialized) return;
+  
+  console.log('Checking for existing data...');
+  
+  // Try to load data from localStorage first
+  const dataLoaded = loadFromLocalStorage();
+  
+  if (dataLoaded) {
+    console.log('Database loaded from localStorage');
+    isDbInitialized = true;
+    return;
+  }
   
   console.log('Initializing database with mock data...');
   
@@ -229,6 +273,10 @@ export const initializeDb = () => {
   });
   
   isDbInitialized = true;
+  
+  // Save the initial data to localStorage
+  saveToLocalStorage();
+  
   console.log('Database initialized with mock data');
 };
 
@@ -306,6 +354,7 @@ export const createUser = (userData: Omit<User, 'id' | 'createdAt' | 'avatarUrl'
   };
   
   users.push(newUser);
+  saveToLocalStorage(); // Save changes
   return newUser;
 };
 
@@ -319,6 +368,7 @@ export const updateUser = (id: number, updates: Partial<Omit<User, 'id' | 'creat
     ...updates,
   };
   
+  saveToLocalStorage(); // Save changes
   return users[userIndex];
 };
 
@@ -328,6 +378,7 @@ export const deleteUser = (id: number) => {
   if (userIndex === -1) return false;
   
   users.splice(userIndex, 1);
+  saveToLocalStorage(); // Save changes
   return true;
 };
 
@@ -373,6 +424,7 @@ export const createTicket = (ticketData: Omit<Ticket, 'id' | 'createdAt' | 'upda
   };
   
   tickets.push(newTicket);
+  saveToLocalStorage(); // Save changes
   return newTicket;
 };
 
@@ -387,6 +439,7 @@ export const updateTicket = (id: number, updates: Partial<Omit<Ticket, 'id' | 'c
     updatedAt: new Date().toISOString()
   };
   
+  saveToLocalStorage(); // Save changes
   return tickets[ticketIndex];
 };
 
@@ -408,6 +461,7 @@ export const createMessage = (messageData: Omit<Message, 'id' | 'createdAt'>) =>
     };
   }
   
+  saveToLocalStorage(); // Save changes
   return newMessage;
 };
 
@@ -430,6 +484,7 @@ export const incrementArticleViews = (id: number) => {
     viewCount: kbArticles[articleIndex].viewCount + 1
   };
   
+  saveToLocalStorage(); // Save changes
   return kbArticles[articleIndex];
 };
 
@@ -444,6 +499,7 @@ export const updateKbArticle = (id: number, updates: Partial<Omit<KbArticle, 'id
     updatedAt: new Date().toISOString()
   };
   
+  saveToLocalStorage(); // Save changes
   return kbArticles[articleIndex];
 };
 
@@ -453,6 +509,7 @@ export const deleteKbArticle = (id: number) => {
   if (articleIndex === -1) return false;
   
   kbArticles.splice(articleIndex, 1);
+  saveToLocalStorage(); // Save changes
   return true;
 };
 
