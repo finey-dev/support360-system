@@ -22,6 +22,7 @@ export const ManageUsers = ({ type }: ManageUsersProps) => {
   const [view, setView] = useState<"active" | "all" | "inactive">("active");
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
   const [isEditUserOpen, setIsEditUserOpen] = useState(false);
+  const [isResetPasswordOpen, setIsResetPasswordOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   
@@ -67,6 +68,11 @@ export const ManageUsers = ({ type }: ManageUsersProps) => {
     setIsEditUserOpen(true);
   };
 
+  const handleResetPassword = (user: any) => {
+    setSelectedUser(user);
+    setIsResetPasswordOpen(true);
+  };
+
   const handleDeleteUser = (user: any) => {
     setSelectedUser(user);
     setIsDeleteDialogOpen(true);
@@ -75,14 +81,16 @@ export const ManageUsers = ({ type }: ManageUsersProps) => {
   const confirmDeleteUser = () => {
     if (selectedUser) {
       try {
-        // In a real app, we would call an API here
+        // Delete user
         deleteUser(selectedUser.id);
         toast({
           title: "User deleted",
           description: `${selectedUser.name} has been deleted.`,
         });
-        fetchUsers(); // Refresh user list
-        setIsDeleteDialogOpen(false); // Close the dialog after successful deletion
+        // Close dialog first
+        setIsDeleteDialogOpen(false);
+        // Then refresh user list
+        fetchUsers();
       } catch (error) {
         toast({
           title: "Error",
@@ -148,10 +156,11 @@ export const ManageUsers = ({ type }: ManageUsersProps) => {
         loading={loading} 
         type={type}
         onEdit={handleEditUser}
+        onResetPassword={handleResetPassword}
         onDelete={handleDeleteUser} 
       />
 
-      {/* Add/Edit User Dialog */}
+      {/* Add User Dialog */}
       {isAddUserOpen && (
         <UserForm
           isOpen={isAddUserOpen}
@@ -161,6 +170,7 @@ export const ManageUsers = ({ type }: ManageUsersProps) => {
         />
       )}
 
+      {/* Edit User Dialog */}
       {isEditUserOpen && selectedUser && (
         <UserForm
           isOpen={isEditUserOpen}
@@ -168,6 +178,18 @@ export const ManageUsers = ({ type }: ManageUsersProps) => {
           user={selectedUser}
           type={type}
           onSuccess={fetchUsers}
+        />
+      )}
+
+      {/* Reset Password Dialog */}
+      {isResetPasswordOpen && selectedUser && (
+        <UserForm
+          isOpen={isResetPasswordOpen}
+          onClose={() => setIsResetPasswordOpen(false)}
+          user={selectedUser}
+          type={type}
+          onSuccess={fetchUsers}
+          isResetPassword={true}
         />
       )}
 

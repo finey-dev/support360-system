@@ -37,10 +37,11 @@ export const ArticleDetail = () => {
     isAgentOnly: false
   });
 
-  useEffect(() => {
+  const fetchArticle = () => {
     if (articleId) {
       const id = parseInt(articleId);
       const articleData = getKbArticle(id);
+      
       if (!articleData) {
         navigate('/dashboard/knowledge-base');
         return;
@@ -57,6 +58,10 @@ export const ArticleDetail = () => {
       });
       setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    fetchArticle();
   }, [articleId, navigate]);
 
   const handleEdit = () => {
@@ -66,11 +71,8 @@ export const ArticleDetail = () => {
       // Update the article in database
       updateKbArticle(parseInt(articleId), editForm);
       
-      // Update local state
-      setArticle({
-        ...article,
-        ...editForm
-      });
+      // Close dialog first
+      setIsEditDialogOpen(false);
       
       // Show toast notification
       toast({
@@ -78,8 +80,8 @@ export const ArticleDetail = () => {
         description: "The article has been successfully updated."
       });
       
-      // Close the modal
-      setIsEditDialogOpen(false);
+      // Refresh article data
+      fetchArticle();
     } catch (error) {
       toast({
         title: "Error updating article",
@@ -96,14 +98,16 @@ export const ArticleDetail = () => {
       // Delete the article from database
       deleteKbArticle(parseInt(articleId));
       
+      // Close the dialog first
+      setIsDeleteDialogOpen(false);
+      
       // Show toast notification
       toast({
         title: "Article deleted",
         description: "The article has been successfully deleted."
       });
       
-      // Close the dialog and navigate back
-      setIsDeleteDialogOpen(false);
+      // Navigate back
       navigate('/dashboard/knowledge-base');
     } catch (error) {
       toast({

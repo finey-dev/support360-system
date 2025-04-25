@@ -1,10 +1,9 @@
-
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getKbArticles, getTickets, getUser } from "@/lib/db";
+import { getTickets, getUser } from "@/lib/db";
 import { useAuth } from "@/components/Auth/AuthContext";
 import { getInitials, getRelativeTime } from "@/lib/utils";
 
@@ -25,9 +24,8 @@ export const TicketTable = ({ limit }: TicketTableProps) => {
     let filteredTickets;
     if (user.role === 'customer') {
       filteredTickets = getTickets({ userId: user.id });
-    } else if (user.role === 'agent') {
-      filteredTickets = getTickets({ assignedToId: user.id });
     } else {
+      // Agents and admins can see all tickets
       filteredTickets = getTickets();
     }
     

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
@@ -27,16 +26,15 @@ export const KanbanBoard = () => {
     })
   );
   
-  useEffect(() => {
+  const fetchTickets = () => {
     if (!user) return;
     
     // Get tickets based on user role
     let filteredTickets;
     if (user.role === 'customer') {
       filteredTickets = getTickets({ userId: user.id });
-    } else if (user.role === 'agent') {
-      filteredTickets = getTickets({ assignedToId: user.id });
     } else {
+      // Agents and admins can see all tickets
       filteredTickets = getTickets();
     }
     
@@ -62,6 +60,10 @@ export const KanbanBoard = () => {
     
     setTickets(groupedTickets);
     setLoading(false);
+  };
+  
+  useEffect(() => {
+    fetchTickets();
   }, [user]);
   
   const handleDragEnd = (event: any) => {
@@ -103,6 +105,8 @@ export const KanbanBoard = () => {
             title: "Status updated",
             description: `Ticket status has been updated to ${newStatus.replace('_', ' ')}.`,
           });
+          // Fetch latest tickets after successful update
+          fetchTickets();
         } catch (error) {
           toast({
             title: "Error",

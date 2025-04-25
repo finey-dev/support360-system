@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { PageHeader } from "@/components/Layout/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,14 +25,13 @@ export const AnalyticsDashboard = () => {
     let filteredTickets;
     if (user.role === 'customer') {
       filteredTickets = getTickets({ userId: user.id });
-    } else if (user.role === 'agent') {
-      filteredTickets = getTickets({ assignedToId: user.id });
     } else {
+      // Agents and admins can see all tickets
       filteredTickets = getTickets();
     }
     
-    // Get agents for admin dashboards
-    const agentUsers = user.role === 'admin' ? getUsers('agent') : [];
+    // Get agents for admin/agent dashboards
+    const agentUsers = user.role === 'customer' ? [] : getUsers('agent');
     
     setTickets(filteredTickets);
     setAgents(agentUsers);
@@ -189,7 +187,7 @@ export const AnalyticsDashboard = () => {
           </CardContent>
         </Card>
         
-        {user?.role === 'admin' && (
+        {(user?.role === 'admin' || user?.role === 'agent') && (
           <Card>
             <CardHeader>
               <CardTitle>Agent Performance</CardTitle>

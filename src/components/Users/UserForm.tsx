@@ -21,9 +21,10 @@ interface UserFormProps {
   user?: any;
   type: "customers" | "agents";
   onSuccess: () => void;
+  isResetPassword?: boolean;
 }
 
-export function UserForm({ isOpen, onClose, user, type, onSuccess }: UserFormProps) {
+export function UserForm({ isOpen, onClose, user, type, onSuccess, isResetPassword = false }: UserFormProps) {
   const isEditing = !!user;
   const [formData, setFormData] = useState({
     name: "",
@@ -49,7 +50,7 @@ export function UserForm({ isOpen, onClose, user, type, onSuccess }: UserFormPro
         isActive: true,
       });
     }
-  }, [user]);
+  }, [user, isOpen]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -72,9 +73,14 @@ export function UserForm({ isOpen, onClose, user, type, onSuccess }: UserFormPro
           // Only send password if it has been changed
           ...(formData.password ? { password: formData.password } : {})
         });
+        
+        const message = isResetPassword 
+          ? "Password has been reset successfully."
+          : `${type === "customers" ? "Customer" : "Agent"} has been successfully updated.`;
+        
         toast({
-          title: "User updated",
-          description: `${type === "customers" ? "Customer" : "Agent"} has been successfully updated.`,
+          title: isResetPassword ? "Password Reset" : "User updated",
+          description: message,
         });
       } else {
         // Create new user
@@ -87,61 +93,78 @@ export function UserForm({ isOpen, onClose, user, type, onSuccess }: UserFormPro
           description: `${type === "customers" ? "Customer" : "Agent"} has been successfully created.`,
         });
       }
+      
+      // Close dialog first to prevent UI jank
+      onClose();
+      
+      // Then trigger the success callback to refresh data
       onSuccess();
-      onClose(); // Ensure dialog closes after successful operation
     } catch (error) {
       toast({
         title: "Error",
         description: `Failed to ${isEditing ? "update" : "create"} user. Please try again.`,
         variant: "destructive",
       });
-    } finally {
       setIsSubmitting(false);
     }
   };
+
+  const dialogTitle = isResetPassword 
+    ? "Reset Password" 
+    : isEditing 
+      ? "Edit" 
+      : "Add";
+
+  const dialogDescription = isResetPassword
+    ? "Enter a new password for this user."
+    : isEditing 
+      ? "Make changes to the user details below."
+      : `Create a new ${type === "customers" ? "customer" : "agent"} account.`;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>
-            {isEditing ? "Edit" : "Add"} {type === "customers" ? "Customer" : "Agent"}
+            {dialogTitle} {!isResetPassword && (type === "customers" ? "Customer" : "Agent")}
           </DialogTitle>
           <DialogDescription>
-            {isEditing 
-              ? "Make changes to the user details below."
-              : `Create a new ${type === "customers" ? "customer" : "agent"} account.`
-            }
+            {dialogDescription}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="name">Full Name</Label>
-              <Input
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="John Doe"
-                required
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="john.doe@example.com"
-                required
-              />
-            </div>
+            {!isResetPassword && (
+              <>
+                <div className="grid gap-2">
+                  <Label htmlFor="name">Full Name</Label>
+                  <Input
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    placeholder="John Doe"
+                    required
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="john.doe@example.com"
+                    required
+                    readOnly={isEditing}
+                  />
+                </div>
+              </>
+            )}
             <div className="grid gap-2">
               <Label htmlFor="password">
-                {isEditing ? "New Password (leave empty to keep current)" : "Password"}
+                {isResetPassword ? "New Password" : isEditing ? "New Password (leave empty to keep current)" : "Password"}
               </Label>
               <Input
                 id="password"
@@ -150,24 +173,26 @@ export function UserForm({ isOpen, onClose, user, type, onSuccess }: UserFormPro
                 value={formData.password}
                 onChange={handleChange}
                 placeholder={isEditing ? "••••••••" : ""}
-                required={!isEditing}
+                required={!isEditing || isResetPassword}
               />
             </div>
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="isActive"
-                checked={formData.isActive}
-                onCheckedChange={handleSwitchChange}
-              />
-              <Label htmlFor="isActive">Active Account</Label>
-            </div>
+            {!isResetPassword && (
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="isActive"
+                  checked={formData.isActive}
+                  onCheckedChange={handleSwitchChange}
+                />
+                <Label htmlFor="isActive">Active Account</Label>
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Saving..." : isEditing ? "Save Changes" : "Create"}
+              {isSubmitting ? "Saving..." : isResetPassword ? "Reset Password" : isEditing ? "Save Changes" : "Create"}
             </Button>
           </DialogFooter>
         </form>

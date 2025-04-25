@@ -1,3 +1,4 @@
+
 import { useEffect } from "react";
 import { useNavigate, useLocation, Routes, Route } from "react-router-dom";
 import { DashboardLayout } from "@/components/Layout/DashboardLayout";
@@ -125,7 +126,7 @@ const Dashboard = () => {
         <Route path="analytics" element={<DashboardAnalytics />} />
         <Route path="knowledge-base" element={<DashboardKnowledgeBase />} />
         <Route path="knowledge-base/:articleId" element={<ArticleDetail />} />
-        <Route path="customers" element={guardedRoute(DashboardManageCustomers, ["admin"])} />
+        <Route path="customers" element={guardedRoute(DashboardManageCustomers, ["admin", "agent"])} />
         <Route path="agents" element={guardedRoute(DashboardManageAgents, ["admin"])} />
         <Route path="settings" element={guardedRoute(DashboardSettings, ["admin"])} />
       </Routes>
