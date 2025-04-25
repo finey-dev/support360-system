@@ -118,6 +118,7 @@ export const TicketTable = ({ limit }: TicketTableProps) => {
                     <Link
                       to={`/dashboard/tickets/${ticket.id}`}
                       className="text-sm font-medium hover:underline"
+                      onClick={(e) => e.stopPropagation()} // Prevent row click handler from firing
                     >
                       {ticket.subject}
                     </Link>

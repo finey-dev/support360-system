@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { getUsers } from "@/lib/db";
+import { getUsers, deleteUser } from "@/lib/db";
 import { PageHeader } from "@/components/Layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -74,14 +74,23 @@ export const ManageUsers = ({ type }: ManageUsersProps) => {
 
   const confirmDeleteUser = () => {
     if (selectedUser) {
-      // In a real app, we would call an API here
-      toast({
-        title: "User deleted",
-        description: `${selectedUser.name} has been deleted.`,
-      });
-      fetchUsers(); // Refresh user list
+      try {
+        // In a real app, we would call an API here
+        deleteUser(selectedUser.id);
+        toast({
+          title: "User deleted",
+          description: `${selectedUser.name} has been deleted.`,
+        });
+        fetchUsers(); // Refresh user list
+        setIsDeleteDialogOpen(false); // Close the dialog after successful deletion
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to delete user. Please try again.",
+          variant: "destructive",
+        });
+      }
     }
-    setIsDeleteDialogOpen(false);
   };
   
   return (

@@ -1,5 +1,5 @@
 
-import { createContext, useContext, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { useAuthStore } from '@/lib/store';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from '@/components/ui/use-toast';
@@ -19,6 +19,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const { user, isAuthenticated, isLoading, error, login: storeLogin, logout: storeLogout, checkAuth } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
+  const [loginError, setLoginError] = useState<string | null>(null);
 
   useEffect(() => {
     checkAuth();
@@ -50,11 +51,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [isAuthenticated, isLoading, location.pathname, navigate]);
 
   const login = async (email: string, password: string) => {
-    await storeLogin(email, password);
-    if (!error) {
+    setLoginError(null);
+    try {
+      await storeLogin(email, password);
+      
+      // Check if authentication was successful
+      if (useAuthStore.getState().isAuthenticated) {
+        toast({
+          title: "Login successful",
+          description: `Welcome back, ${useAuthStore.getState().user?.name || 'user'}!`,
+        });
+      } else if (useAuthStore.getState().error) {
+        setLoginError(useAuthStore.getState().error);
+        toast({
+          title: "Login failed",
+          description: useAuthStore.getState().error || "Invalid credentials",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
+      setLoginError(errorMessage);
       toast({
-        title: "Login successful",
-        description: `Welcome back, ${user?.name || 'user'}!`,
+        title: "Login failed",
+        description: errorMessage,
+        variant: "destructive"
       });
     }
   };
@@ -72,7 +93,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     user,
     isAuthenticated,
     isLoading,
-    error,
+    error: loginError || error,
     login,
     logout
   };

@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/components/Auth/AuthContext";
-import { getKbArticle, incrementArticleViews } from "@/lib/db";
+import { getKbArticle, incrementArticleViews, updateKbArticle, deleteKbArticle } from "@/lib/db";
 import ReactMarkdown from 'react-markdown';
 import { ArrowLeft, Edit, Trash } from "lucide-react";
 
@@ -60,21 +60,58 @@ export const ArticleDetail = () => {
   }, [articleId, navigate]);
 
   const handleEdit = () => {
-    // In a real app, this would update the database
-    toast({
-      title: "Article updated",
-      description: "The article has been successfully updated."
-    });
-    setIsEditDialogOpen(false);
+    if (!articleId) return;
+    
+    try {
+      // Update the article in database
+      updateKbArticle(parseInt(articleId), editForm);
+      
+      // Update local state
+      setArticle({
+        ...article,
+        ...editForm
+      });
+      
+      // Show toast notification
+      toast({
+        title: "Article updated",
+        description: "The article has been successfully updated."
+      });
+      
+      // Close the modal
+      setIsEditDialogOpen(false);
+    } catch (error) {
+      toast({
+        title: "Error updating article",
+        description: "There was a problem updating the article.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleDelete = () => {
-    // In a real app, this would delete from the database
-    toast({
-      title: "Article deleted",
-      description: "The article has been successfully deleted."
-    });
-    navigate('/dashboard/knowledge-base');
+    if (!articleId) return;
+    
+    try {
+      // Delete the article from database
+      deleteKbArticle(parseInt(articleId));
+      
+      // Show toast notification
+      toast({
+        title: "Article deleted",
+        description: "The article has been successfully deleted."
+      });
+      
+      // Close the dialog and navigate back
+      setIsDeleteDialogOpen(false);
+      navigate('/dashboard/knowledge-base');
+    } catch (error) {
+      toast({
+        title: "Error deleting article",
+        description: "There was a problem deleting the article.",
+        variant: "destructive"
+      });
+    }
   };
 
   if (loading) {

@@ -88,7 +88,7 @@ export function UserForm({ isOpen, onClose, user, type, onSuccess }: UserFormPro
         });
       }
       onSuccess();
-      onClose();
+      onClose(); // Ensure dialog closes after successful operation
     } catch (error) {
       toast({
         title: "Error",
