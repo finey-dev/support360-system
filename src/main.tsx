@@ -9,6 +9,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { PWAInstallPrompt } from '@/components/PWA/PWAInstallPrompt';
 import './index.css'
 
+// Configure the QueryClient with appropriate default options
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -18,6 +19,7 @@ const queryClient = new QueryClient({
   },
 });
 
+// Initialize the React application
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter>
