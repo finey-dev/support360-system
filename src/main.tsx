@@ -9,7 +9,14 @@ import { Toaster } from '@/components/ui/toaster';
 import { PWAInstallPrompt } from '@/components/PWA/PWAInstallPrompt';
 import './index.css'
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
