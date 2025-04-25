@@ -433,5 +433,28 @@ export const incrementArticleViews = (id: number) => {
   return kbArticles[articleIndex];
 };
 
+export const updateKbArticle = (id: number, updates: Partial<Omit<KbArticle, 'id' | 'createdAt'>>) => {
+  const articleIndex = kbArticles.findIndex(a => a.id === id);
+  
+  if (articleIndex === -1) return null;
+  
+  kbArticles[articleIndex] = {
+    ...kbArticles[articleIndex],
+    ...updates,
+    updatedAt: new Date().toISOString()
+  };
+  
+  return kbArticles[articleIndex];
+};
+
+export const deleteKbArticle = (id: number) => {
+  const articleIndex = kbArticles.findIndex(a => a.id === id);
+  
+  if (articleIndex === -1) return false;
+  
+  kbArticles.splice(articleIndex, 1);
+  return true;
+};
+
 // Initialize DB on module import
 initializeDb();
