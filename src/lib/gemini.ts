@@ -32,7 +32,7 @@ const safetySettings = [
 // Chat history storage for conversation context
 interface ChatMessage {
   role: "user" | "model";
-  parts: string;
+  parts: { text: string }[];
 }
 
 // Store conversation history by conversation ID
@@ -51,7 +51,10 @@ export async function getGeminiResponse(prompt: string, conversationId: string =
     }
     
     // Add user message to history
-    chatHistories[conversationId].push({ role: "user", parts: prompt });
+    chatHistories[conversationId].push({ 
+      role: "user", 
+      parts: [{ text: prompt }]
+    });
     
     // For chat functionality, use the gemini-pro model
     const model = genAI.getGenerativeModel({ model: "gemini-pro", safetySettings });
@@ -73,7 +76,10 @@ export async function getGeminiResponse(prompt: string, conversationId: string =
     const text = response.text();
     
     // Add model response to history
-    chatHistories[conversationId].push({ role: "model", parts: text });
+    chatHistories[conversationId].push({ 
+      role: "model", 
+      parts: [{ text: text }]
+    });
     
     // Limit history size to prevent token limits (keep last 10 messages)
     if (chatHistories[conversationId].length > 20) {
