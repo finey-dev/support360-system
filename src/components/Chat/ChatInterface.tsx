@@ -6,12 +6,18 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
-import { Send, Paperclip, Bot, ThumbsUp, ThumbsDown, Settings } from "lucide-react";
+import { Send, Paperclip, Bot, ThumbsUp, ThumbsDown, Settings, RefreshCw, Trash } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { createMessage } from "@/lib/db";
-import { getGeminiResponse, isGeminiConfigured } from "@/lib/gemini";
+import { 
+  getGeminiResponse, 
+  isGeminiConfigured, 
+  clearConversation, 
+  getConversationHistory 
+} from "@/lib/gemini";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/components/ui/use-toast";
+import ReactMarkdown from "react-markdown";
 
 interface Message {
   id: string;
@@ -24,17 +30,19 @@ interface Message {
 export const ChatInterface = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "system-1",
-      content: "Hello! I'm your support assistant. How can I help you today?",
+      content: "Hello! I'm your AI assistant powered by Gemini. How can I help you today?",
       isUser: false,
       timestamp: new Date().toISOString(),
       isAi: true
     }
   ]);
   const [isLoading, setIsLoading] = useState(false);
+  const [conversationId] = useState<string>(`chat-${Date.now()}`);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const [isGeminiEnabled] = useState<boolean>(isGeminiConfigured());
 
@@ -45,6 +53,21 @@ export const ChatInterface = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Check if Gemini is configured and prompt user if not
+  useEffect(() => {
+    if (!isGeminiConfigured()) {
+      toast({
+        title: "AI Not Configured",
+        description: "Please set up your Gemini API key to enhance the chat experience.",
+        action: (
+          <Button variant="outline" size="sm" onClick={() => navigate('/ai-settings')}>
+            Configure
+          </Button>
+        ),
+      });
+    }
+  }, []);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,8 +88,8 @@ export const ChatInterface = () => {
     // Check if we should use Gemini AI
     if (isGeminiConfigured()) {
       try {
-        // Get response from Gemini
-        const aiResponse = await getGeminiResponse(input);
+        // Get response from Gemini with conversation context
+        const aiResponse = await getGeminiResponse(input, conversationId);
         
         // Add the AI response to messages
         setMessages((prev) => [
@@ -98,66 +121,37 @@ export const ChatInterface = () => {
       }
     } else {
       // Use the fallback system (simulated AI responses)
-      // Simulate AI response with escalation detection
       setTimeout(() => {
-        let aiResponse: Message;
-        
-        // Check for keywords that might require agent escalation
-        const needsEscalation = input.toLowerCase().includes("agent") || 
-                              input.toLowerCase().includes("human") || 
-                              input.toLowerCase().includes("refund") ||
-                              input.toLowerCase().includes("frustrated");
-        
-        if (needsEscalation) {
-          aiResponse = {
+        setMessages((prev) => [
+          ...prev,
+          {
             id: `ai-${Date.now()}`,
-            content: "I understand you'd like to speak with a human agent. I'm connecting you with one of our support representatives now. They'll be with you shortly.",
+            content: "It looks like the AI isn't fully configured yet. Please set up your Gemini API key in the AI Settings to enable intelligent responses.",
             isUser: false,
             timestamp: new Date().toISOString(),
             isAi: true
-          };
-          
-          // In a real app, we would create a ticket and escalate to an agent
-          // For the demo, we'll just show a message
-          setTimeout(() => {
-            setMessages((prev) => [
-              ...prev, 
-              {
-                id: `system-${Date.now()}`,
-                content: "You have been connected to Agent Sarah. She will respond to you within 10 minutes.",
-                isUser: false,
-                timestamp: new Date().toISOString()
-              }
-            ]);
-          }, 2000);
-        } else {
-          // Standard AI response
-          // In a real app, this would call the Gemini API
-          const responses = [
-            "I'd be happy to help you with that. Could you provide a few more details?",
-            "Thank you for the information. Based on what you've shared, I recommend checking our knowledge base for article #42 which addresses this specific issue.",
-            "I understand your concern. This is a common question, and the solution is to reset your account preferences in the Settings menu.",
-            "Let me look that up for you. According to our documentation, you'll need to clear your browser cache and cookies, then log in again.",
-            "Thank you for your patience. I'm checking our database for the most up-to-date information on this topic."
-          ];
-          
-          aiResponse = {
-            id: `ai-${Date.now()}`,
-            content: responses[Math.floor(Math.random() * responses.length)],
-            isUser: false,
-            timestamp: new Date().toISOString(),
-            isAi: true
-          };
-        }
-        
-        setMessages((prev) => [...prev, aiResponse]);
+          }
+        ]);
         setIsLoading(false);
-      }, 1500);
+      }, 1000);
     }
   };
 
   const handleOpenAiSettings = () => {
     navigate('/ai-settings');
+  };
+  
+  const handleNewConversation = () => {
+    clearConversation(conversationId);
+    setMessages([
+      {
+        id: "system-1",
+        content: "Hello! I'm your AI assistant powered by Gemini. How can I help you today?",
+        isUser: false,
+        timestamp: new Date().toISOString(),
+        isAi: true
+      }
+    ]);
   };
 
   return (
@@ -171,12 +165,15 @@ export const ChatInterface = () => {
                 <AvatarFallback><Bot size={16} /></AvatarFallback>
               </Avatar>
               <div>
-                <CardTitle className="text-lg">Support Assistant</CardTitle>
+                <CardTitle className="text-lg">AI Assistant</CardTitle>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant="outline" className={`${isGeminiEnabled ? 'bg-green-100 text-green-800' : 'bg-support-100 text-support-800'}`}>
-                {isGeminiEnabled ? 'Gemini AI' : 'AI-Powered'}
+              <Button variant="ghost" size="icon" onClick={handleNewConversation} title="New Conversation">
+                <Trash size={16} />
+              </Button>
+              <Badge variant="outline" className={`${isGeminiEnabled ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'}`}>
+                {isGeminiEnabled ? 'Gemini AI' : 'Not Configured'}
               </Badge>
               <Button variant="ghost" size="icon" onClick={handleOpenAiSettings} title="AI Settings">
                 <Settings size={16} />
@@ -222,7 +219,13 @@ export const ChatInterface = () => {
                     </div>
                   )}
                   
-                  <p className="text-sm whitespace-pre-wrap break-words">{msg.content}</p>
+                  <div className="text-sm whitespace-pre-wrap break-words prose prose-sm dark:prose-invert max-w-none">
+                    {msg.isAi ? (
+                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                    ) : (
+                      msg.content
+                    )}
+                  </div>
                   
                   {msg.isAi && (
                     <div className="flex items-center justify-end gap-1 mt-2">
@@ -265,13 +268,10 @@ export const ChatInterface = () => {
         
         <CardFooter className="pt-2">
           <form onSubmit={handleSendMessage} className="flex w-full gap-2">
-            <Button variant="outline" size="icon" type="button">
-              <Paperclip size={18} />
-            </Button>
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Type your message..."
+              placeholder="Type a message or ask a question..."
               className="flex-grow"
               disabled={isLoading}
             />

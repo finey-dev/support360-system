@@ -1,4 +1,3 @@
-
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
 
 // Initialize the Gemini API with the API key
@@ -30,19 +29,57 @@ const safetySettings = [
   },
 ];
 
-// Get response from Gemini AI
-export async function getGeminiResponse(prompt: string): Promise<string> {
+// Chat history storage for conversation context
+interface ChatMessage {
+  role: "user" | "model";
+  parts: string;
+}
+
+// Store conversation history by conversation ID
+const chatHistories: Record<string, ChatMessage[]> = {};
+
+// Get response from Gemini AI with conversation history
+export async function getGeminiResponse(prompt: string, conversationId: string = 'default'): Promise<string> {
   if (!apiKey || !genAI) {
     return "AI is not configured. Please add your Gemini API key in the AI Settings.";
   }
 
   try {
-    // For text-only input, use the gemini-pro model
+    // Initialize chat history for this conversation if it doesn't exist
+    if (!chatHistories[conversationId]) {
+      chatHistories[conversationId] = [];
+    }
+    
+    // Add user message to history
+    chatHistories[conversationId].push({ role: "user", parts: prompt });
+    
+    // For chat functionality, use the gemini-pro model
     const model = genAI.getGenerativeModel({ model: "gemini-pro", safetySettings });
     
-    const result = await model.generateContent(prompt);
+    // Create a chat session
+    const chat = model.startChat({
+      history: chatHistories[conversationId].slice(0, -1), // All previous messages
+      generationConfig: {
+        temperature: 0.7,
+        topK: 40,
+        topP: 0.95,
+        maxOutputTokens: 1000,
+      },
+    });
+    
+    // Generate content based on the latest prompt
+    const result = await chat.sendMessage(prompt);
     const response = await result.response;
     const text = response.text();
+    
+    // Add model response to history
+    chatHistories[conversationId].push({ role: "model", parts: text });
+    
+    // Limit history size to prevent token limits (keep last 10 messages)
+    if (chatHistories[conversationId].length > 20) {
+      chatHistories[conversationId] = chatHistories[conversationId].slice(-20);
+    }
+    
     return text;
   } catch (error) {
     console.error("Error with Gemini API:", error);
@@ -63,6 +100,11 @@ export function setGeminiApiKey(key: string): void {
     apiKey = key;
     genAI = testClient;
     
+    // Reset chat histories when API key changes
+    Object.keys(chatHistories).forEach(id => {
+      chatHistories[id] = [];
+    });
+    
     console.log("Gemini API key has been saved");
   } catch (error) {
     console.error("Invalid Gemini API key:", error);
@@ -78,4 +120,16 @@ export function isGeminiConfigured(): boolean {
 // Get the API key
 export function getGeminiApiKey(): string | null {
   return apiKey;
+}
+
+// Clear conversation history
+export function clearConversation(conversationId: string = 'default'): void {
+  if (chatHistories[conversationId]) {
+    chatHistories[conversationId] = [];
+  }
+}
+
+// Get conversation history
+export function getConversationHistory(conversationId: string = 'default'): ChatMessage[] {
+  return chatHistories[conversationId] || [];
 }
