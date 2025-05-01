@@ -5,6 +5,7 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
+import { AiSettings } from "./components/Settings/AiSettings";
 
 const App = () => (
   <TooltipProvider>
@@ -12,6 +13,7 @@ const App = () => (
       <Route path="/" element={<Index />} />
       <Route path="/login" element={<Login />} />
       <Route path="/dashboard/*" element={<Dashboard />} />
+      <Route path="/ai-settings" element={<AiSettings />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   </TooltipProvider>
