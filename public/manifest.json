@@ -1,7 +1,7 @@
 
 {
-  "name": "Support360",
-  "short_name": "Support360",
+  "name": "SUPPORTLINE",
+  "short_name": "SUPPORTLINE",
   "description": "Complete customer support system with ticket tracking, knowledge base, and chat",
   "start_url": "/",
   "display": "standalone",

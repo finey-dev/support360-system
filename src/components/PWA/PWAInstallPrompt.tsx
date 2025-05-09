@@ -49,7 +49,7 @@ export function PWAInstallPrompt() {
   return (
     <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-auto p-4 bg-white shadow-lg rounded-lg z-50 border flex items-center justify-between">
       <div>
-        <h3 className="font-medium">Install Support360</h3>
+        <h3 className="font-medium">Install SUPPORTLINE</h3>
         <p className="text-sm text-muted-foreground">Add to your home screen for quick access</p>
       </div>
       <div className="flex gap-2">

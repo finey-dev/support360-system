@@ -25,7 +25,7 @@ const Index = () => {
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
               </svg>
             </div>
-            <span className="text-xl font-bold">Support360</span>
+            <span className="text-xl font-bold">SUPPORTLINE</span>
           </div>
           <Button 
             variant="outline" 
@@ -205,7 +205,7 @@ const Index = () => {
         <div className="container mx-auto px-6">
           <h2 className="text-3xl font-bold mb-6">Ready to transform your customer support?</h2>
           <p className="text-xl max-w-2xl mx-auto mb-8">
-            Join Support360 today and experience the future of customer service.
+            Join SUPPORTLINE today and experience the future of customer service.
           </p>
           <Button 
             size="lg" 
@@ -228,7 +228,7 @@ const Index = () => {
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                   </svg>
                 </div>
-                <span className="text-xl font-bold text-white">Support360</span>
+                <span className="text-xl font-bold text-white">SUPPORTLINE</span>
               </div>
               <p className="text-sm">Comprehensive customer support platform with AI-powered solutions.</p>
             </div>
@@ -265,7 +265,7 @@ const Index = () => {
           </div>
           
           <div className="border-t border-gray-800 mt-8 pt-8 text-sm text-center">
-            &copy; 2025 Support360. All rights reserved.
+            &copy; 2025 SUPPORTLINE. All rights reserved.
           </div>
         </div>
       </footer>

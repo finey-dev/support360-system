@@ -57,7 +57,7 @@ export const Sidebar = () => {
               <div className="bg-support-600 text-white p-1.5 rounded">
                 <MessageSquare size={18} />
               </div>
-              <span className="text-xl font-bold">Support360</span>
+              <span className="text-xl font-bold">SUPPORTLINE</span>
             </Link>
             <Button 
               variant="ghost" 

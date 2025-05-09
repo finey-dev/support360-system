@@ -78,7 +78,7 @@ export const useAuthStore = create<AuthState>()(
       }
     }),
     {
-      name: 'support360-auth'
+      name: 'SUPPORTLINE-auth'
     }
   )
 );

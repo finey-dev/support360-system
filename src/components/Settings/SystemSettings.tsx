@@ -21,8 +21,8 @@ export const SystemSettings = () => {
   const { toast } = useToast();
   
   // General settings
-  const [companyName, setCompanyName] = useState("Support360");
-  const [supportEmail, setSupportEmail] = useState("support@support360.com");
+  const [companyName, setCompanyName] = useState("SUPPORTLINE");
+  const [supportEmail, setSupportEmail] = useState("support@SUPPORTLINE.com");
   const [supportPhone, setSupportPhone] = useState("+1 (800) 123-4567");
   
   // Avatar settings
@@ -403,7 +403,7 @@ export const SystemSettings = () => {
                 <Input 
                   id="allowed-domains"
                   placeholder="Comma-separated list of domains"
-                  defaultValue="example.com,support360.com"
+                  defaultValue="example.com,SUPPORTLINE.com"
                 />
                 <p className="text-muted-foreground text-xs mt-1">
                   Only users with these email domains can register
