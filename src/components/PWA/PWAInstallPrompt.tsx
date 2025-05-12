@@ -2,15 +2,23 @@
 import React, { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+}
+
 export function PWAInstallPrompt() {
   const [showPrompt, setShowPrompt] = useState(false);
-  const [installPromptEvent, setInstallPromptEvent] = useState<any>(null);
+  const [installPromptEvent, setInstallPromptEvent] = useState<BeforeInstallPromptEvent | null>(null);
   const { toast } = useToast();
   
   useEffect(() => {
     // Check if the app is already installed
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-      console.log('App is already installed');
+    const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || 
+                              (window.navigator as any).standalone === true;
+    
+    if (isInStandaloneMode) {
+      console.log('App is already installed in standalone mode');
       return; // Don't show prompt if already installed
     }
     
@@ -19,39 +27,44 @@ export function PWAInstallPrompt() {
       // Prevent Chrome 67 and earlier from automatically showing the prompt
       e.preventDefault();
       // Stash the event so it can be triggered later
-      setInstallPromptEvent(e);
+      setInstallPromptEvent(e as BeforeInstallPromptEvent);
       // Show the install button
       setShowPrompt(true);
-      console.log('Before install prompt fired');
+      console.log('Before install prompt fired and captured successfully');
     };
     
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     
     // Handle app installed event
-    window.addEventListener('appinstalled', () => {
+    const handleAppInstalled = () => {
       setShowPrompt(false);
       toast({
         title: "HelpDesk Installed",
         description: "The app was successfully installed to your device.",
       });
-      console.log('PWA was installed');
-    });
+      console.log('PWA was installed successfully');
+    };
+    
+    window.addEventListener('appinstalled', handleAppInstalled);
     
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
     };
   }, [toast]);
 
   const handleInstallClick = () => {
     if (!installPromptEvent) {
+      console.log('No install prompt event saved');
       return;
     }
     
+    console.log('Prompting for installation...');
     // Show the install prompt
     installPromptEvent.prompt();
     
     // Wait for the user to respond to the prompt
-    installPromptEvent.userChoice.then((choiceResult: any) => {
+    installPromptEvent.userChoice.then((choiceResult: { outcome: 'accepted' | 'dismissed' }) => {
       if (choiceResult.outcome === 'accepted') {
         console.log('User accepted the install prompt');
         toast({

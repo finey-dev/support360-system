@@ -8,6 +8,8 @@
   "orientation": "any",
   "background_color": "#ffffff",
   "theme_color": "#4f46e5",
+  "prefer_related_applications": false,
+  "categories": ["business", "productivity", "utilities"],
   "icons": [
     {
       "src": "favicon.ico",
@@ -26,5 +28,20 @@
       "sizes": "512x512",
       "purpose": "any maskable"
     }
-  ]
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "url": "/dashboard/home",
+      "icons": [{ "src": "logo192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Tickets",
+      "short_name": "Tickets",
+      "url": "/dashboard/tickets",
+      "icons": [{ "src": "logo192.png", "sizes": "192x192" }]
+    }
+  ],
+  "related_applications": []
 }
