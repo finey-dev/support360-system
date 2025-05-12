@@ -24,7 +24,7 @@ const Login = () => {
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
               </svg>
             </div>
-            <span className="text-xl font-bold">SUPPORTLINE</span>
+            <span className="text-xl font-bold">HelpDesk</span>
           </div>
         </div>
       </header>
@@ -32,7 +32,7 @@ const Login = () => {
       <main className="flex-grow flex items-center justify-center p-6">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center">
-            <h1 className="text-3xl font-bold">Welcome to SUPPORTLINE</h1>
+            <h1 className="text-3xl font-bold">Welcome to HelpDesk</h1>
             <p className="mt-2 text-muted-foreground">Sign in to access your support dashboard</p>
           </div>
           
@@ -45,7 +45,7 @@ const Login = () => {
               Demo credentials:
             </p>
             <div className="mt-2 space-y-1">
-              <div><strong>Admin:</strong> admin@SUPPORTLINE.com / password</div>
+              <div><strong>Admin:</strong> admin@helpdesk.com / password</div>
               <div><strong>Agent:</strong> any agent email / password</div>
               <div><strong>Customer:</strong> any customer email / password</div>
             </div>
@@ -55,7 +55,7 @@ const Login = () => {
       
       <footer className="bg-white border-t py-6">
         <div className="max-w-7xl mx-auto px-4 text-center text-muted-foreground text-sm">
-          &copy; 2025 SUPPORTLINE. All rights reserved.
+          &copy; 2025 HelpDesk (Support Ticketing System). All rights reserved.
         </div>
       </footer>
     </div>
