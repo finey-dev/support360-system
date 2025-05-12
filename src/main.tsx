@@ -37,13 +37,30 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 // Register service worker for PWA support
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js').then(
-      registration => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(registration => {
         console.log('ServiceWorker registration successful with scope: ', registration.scope);
-      },
-      error => {
-        console.log('ServiceWorker registration failed: ', error);
-      }
-    );
+        
+        // Check for updates and notify user when a new version is available
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          if (newWorker) {
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                console.log('New content is available; please refresh.');
+              }
+            });
+          }
+        });
+      })
+      .catch(error => {
+        console.error('ServiceWorker registration failed: ', error);
+      });
+      
+    // Handle case when service worker has an update available
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      console.log('New service worker controller, page will reload');
+      window.location.reload();
+    });
   });
 }

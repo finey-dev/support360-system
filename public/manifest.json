@@ -5,6 +5,7 @@
   "description": "Complete customer support system with ticket tracking, knowledge base, and chat",
   "start_url": "/",
   "display": "standalone",
+  "orientation": "any",
   "background_color": "#ffffff",
   "theme_color": "#4f46e5",
   "icons": [
@@ -16,12 +17,14 @@
     {
       "src": "logo192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any maskable"
     },
     {
       "src": "logo512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
   ]
 }
