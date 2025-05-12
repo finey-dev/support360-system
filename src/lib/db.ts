@@ -223,7 +223,7 @@ export const initializeDb = () => {
   users.push({
     id: 1,
     name: 'Admin User',
-    email: 'admin@SUPPORTLINE.com',
+    email: 'admin@helpdesk.com', // Updated email to match login page
     password: '$2a$10$XQhaVPeWJN83MGtL8xXw6e2cvqKiN8e32KymIOvUW2wllee8DhAuC', // "password"
     role: 'admin',
     createdAt: new Date().toISOString(),
