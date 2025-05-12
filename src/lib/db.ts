@@ -1,4 +1,3 @@
-
 // Types for our database entities
 export interface User {
   id: number;
@@ -511,6 +510,40 @@ export const deleteKbArticle = (id: number) => {
   kbArticles.splice(articleIndex, 1);
   saveToLocalStorage(); // Save changes
   return true;
+};
+
+// New function to get ticket comments
+export const getTicketComments = (ticketId: number) => {
+  const storedComments = localStorage.getItem('ticket_comments') || '[]';
+  const allComments = JSON.parse(storedComments);
+  return allComments.filter((comment: any) => comment.ticketId === ticketId);
+};
+
+// New function to create a comment
+export const createComment = (comment: {
+  content: string;
+  ticketId: number;
+  userId: number;
+}) => {
+  const storedComments = localStorage.getItem('ticket_comments') || '[]';
+  const comments = JSON.parse(storedComments);
+  
+  const newComment = {
+    ...comment,
+    id: Date.now(),
+    createdAt: new Date().toISOString(),
+  };
+  
+  comments.push(newComment);
+  localStorage.setItem('ticket_comments', JSON.stringify(comments));
+  
+  return newComment;
+};
+
+// New function to get available agents (for ticket assignment)
+export const getAvailableAgents = () => {
+  const users = getUsers();
+  return users.filter((user: any) => user.role === 'agent');
 };
 
 // Initialize DB on module import

@@ -78,7 +78,7 @@ export const useAuthStore = create<AuthState>()(
       }
     }),
     {
-      name: 'SUPPORTLINE-auth'
+      name: 'HelpDesk-auth'
     }
   )
 );

@@ -1,7 +1,15 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getTicket, getTicketMessages, getUser, createMessage, updateTicket } from "@/lib/db";
+import { 
+  getTicket, 
+  getTicketMessages, 
+  getTicketComments,
+  getUser, 
+  createMessage, 
+  updateTicket,
+  getAvailableAgents 
+} from "@/lib/db";
 import { PageHeader } from "@/components/Layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,7 +23,8 @@ import {
   AlertCircle, 
   Clock, 
   CheckCircle, 
-  XCircle 
+  XCircle,
+  Users
 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { 
@@ -27,6 +36,7 @@ import {
 } from "@/components/ui/select";
 import { useAuth } from "@/components/Auth/AuthContext";
 import { getInitials, getRelativeTime } from "@/lib/utils";
+import { TicketComment } from "./TicketComment";
 
 export const TicketDetail = () => {
   const { ticketId } = useParams();
@@ -36,6 +46,8 @@ export const TicketDetail = () => {
 
   const [ticket, setTicket] = useState<any>(null);
   const [messages, setMessages] = useState<any[]>([]);
+  const [comments, setComments] = useState<any[]>([]);
+  const [availableAgents, setAvailableAgents] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -68,8 +80,23 @@ export const TicketDetail = () => {
           user: messageUser
         };
       });
-      
       setMessages(enhancedMessages);
+      
+      // Get comments
+      const ticketComments = getTicketComments(id);
+      const enhancedComments = ticketComments.map(comment => {
+        const commentUser = getUser(comment.userId);
+        return {
+          ...comment,
+          user: commentUser
+        };
+      });
+      setComments(enhancedComments);
+      
+      // Get available agents for assignment
+      const agents = getAvailableAgents();
+      setAvailableAgents(agents);
+      
       setLoading(false);
     }
   }, [ticketId, navigate]);
@@ -156,6 +183,36 @@ export const TicketDetail = () => {
       });
     }
   };
+
+  const handleAssignTicket = (agentId: string) => {
+    if (!ticket) return;
+    
+    const assignedToId = parseInt(agentId);
+    
+    try {
+      updateTicket(ticket.id, { assignedToId });
+      
+      // Update the agent information in the current ticket state
+      const assignedAgent = getUser(assignedToId);
+      
+      setTicket({ 
+        ...ticket, 
+        assignedToId,
+        assignedToUser: assignedAgent 
+      });
+      
+      toast({
+        title: "Ticket assigned",
+        description: `Ticket has been assigned to ${assignedAgent.name}.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to assign ticket.",
+        variant: "destructive",
+      });
+    }
+  };
   
   if (loading) {
     return (
@@ -189,6 +246,8 @@ export const TicketDetail = () => {
   
   const canManageTicket = user && (user.role === 'admin' || 
     (user.role === 'agent' && ticket.assignedToId === user.id));
+  
+  const isAdmin = user && user.role === 'admin';
 
   return (
     <div className="space-y-6 animate-in">
@@ -315,12 +374,37 @@ export const TicketDetail = () => {
               </CardContent>
             </Card>
           )}
+          
+          {/* Comments Section */}
+          <TicketComment ticketId={ticket.id} initialComments={comments} />
         </div>
         
         {/* Sidebar with ticket info */}
         <div className="space-y-6">
           <Card>
             <CardContent className="pt-6 space-y-6">
+              {/* Admin Assignment Section */}
+              {isAdmin && (
+                <div className="space-y-2 pb-4 border-b">
+                  <h4 className="text-sm font-medium">Assign Ticket</h4>
+                  <Select
+                    value={ticket.assignedToId ? ticket.assignedToId.toString() : ""}
+                    onValueChange={handleAssignTicket}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select agent" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableAgents.map((agent: any) => (
+                        <SelectItem key={agent.id} value={agent.id.toString()}>
+                          {agent.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              
               {/* Status and Priority */}
               {canManageTicket ? (
                 <div className="space-y-4">

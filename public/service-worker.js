@@ -1,7 +1,7 @@
 
 // Service worker for PWA functionality
 
-const CACHE_NAME = 'SUPPORTLINE-v1';
+const CACHE_NAME = 'HelpDesk-v1';
 const urlsToCache = [
   '/',
   '/index.html',
