@@ -4,6 +4,7 @@
   "short_name": "HelpDesk",
   "description": "Complete customer support system with ticket tracking, knowledge base, and chat",
   "start_url": "/",
+  "id": "/",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#ffffff",
@@ -27,6 +28,20 @@
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "logo512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "logo512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow"
     }
   ],
   "shortcuts": [
