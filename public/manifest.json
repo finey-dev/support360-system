@@ -1,6 +1,6 @@
 
 {
-  "name": "HelpDesk (Support Ticketing System)",
+  "name": "HelpDesk Support System",
   "short_name": "HelpDesk",
   "description": "Complete customer support system with ticket tracking, knowledge base, and chat",
   "start_url": "/",

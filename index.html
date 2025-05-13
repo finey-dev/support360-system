@@ -4,10 +4,13 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="description" content="HelpDesk (Support Ticketing System) - Complete support ticket system with knowledge base and chat" />
     <meta name="theme-color" content="#4f46e5" />
-    <link rel="manifest" href="/manifest.json" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="HelpDesk" />
+    <link rel="manifest" href="/manifest.json" crossorigin="use-credentials" />
     <link rel="apple-touch-icon" href="/logo192.png" />
     <title>HelpDesk (Support Ticketing System)</title>
   </head>
@@ -15,5 +18,6 @@
     <div id="root"></div>
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
   </body>
 </html>
