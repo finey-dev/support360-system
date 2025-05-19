@@ -232,8 +232,8 @@ export const initializeDb = () => {
   });
   
   // Generate mock users
-  const mockCustomers = generateMockUsers(200, 'customer');
-  const mockAgents = generateMockUsers(50, 'agent');
+  const mockCustomers = generateMockUsers(5, 'customer');
+  const mockAgents = generateMockUsers(2, 'agent');
   
   let nextId = 2;
   mockCustomers.forEach(user => {
@@ -249,7 +249,7 @@ export const initializeDb = () => {
   const agentIds = users.filter(u => u.role === 'agent').map(u => u.id);
   
   // Generate mock tickets
-  const mockTickets = generateMockTickets(1000, customerIds, agentIds);
+  const mockTickets = generateMockTickets(10, customerIds, agentIds);
   nextId = 1;
   mockTickets.forEach(ticket => {
     tickets.push({...ticket, id: nextId++} as Ticket);
@@ -258,14 +258,14 @@ export const initializeDb = () => {
   const ticketIds = tickets.map(t => t.id);
   
   // Generate mock messages
-  const mockMessages = generateMockMessages(5000, ticketIds, customerIds, agentIds);
+  const mockMessages = generateMockMessages(10, ticketIds, customerIds, agentIds);
   nextId = 1;
   mockMessages.forEach(message => {
     messages.push({...message, id: nextId++} as Message);
   });
   
   // Generate KB articles
-  const mockArticles = generateMockKbArticles(30);
+  const mockArticles = generateMockKbArticles(5);
   nextId = 1;
   mockArticles.forEach(article => {
     kbArticles.push({...article, id: nextId++} as KbArticle);
